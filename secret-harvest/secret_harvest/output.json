@@ -1,0 +1,22 @@
+[
+  {
+    "rule": {
+      "id": "generic.password-in-url",
+      "message": "Password in URL",
+      "pattern": "[a-zA-Z]{3,10}://[^/\\s:@]{3,20}:[^/\\s:@]{3,20}@.{1,100}[\"'\\s]",
+      "severity": "LOW"
+    },
+    "path": "Design-patterns-community-reward-token/code/helper/dbo.js",
+    "line": "7",
+    "secret": "mongodb://mike:denton@\" ",
+    "context": {
+      "7": "  \"mongodb://mike:denton@\" +"
+    },
+    "id": "a590a4c0-76e4-3f69-bf3d-83bce4410eee",
+    "branch": null,
+    "message": null,
+    "author": null,
+    "commit": null,
+    "date": null
+  }
+]
