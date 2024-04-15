@@ -1,95 +1,69 @@
-from typing import List, Any
-import time
-import requests
-import random
-import git
 import os
+import json
+from typing import Dict, List
 
-class GitHubManager:
 
-    def __init__(self, destination_path: str, repo_blacklist: List[str] = None):
-        # Excluded Repositories because many artificial results.
-        self.repo_blacklist = repo_blacklist
-        self.destination_path = destination_path
+class FileManager:
 
-    def search_code_repositories(self,
-                                 keywords: List[str], 
-                                 max_repos: int) -> List[str]:
-    # search GitHub api for repositories containing the keyword
-    # Rate limit 60 request per hour not authenticated.
-
-        max_repos = 30
-        repos = []
-
-        for keyword in keywords:
-            print(f"Searching for {keyword}...")
-
-            url = f"https://api.github.com/search/repositories?q={keyword}"
-            response = requests.get(url)
-
-            if response.status_code == 403:
-                print("Rate limited. Waiting 5 minutes...")
-                time.sleep(300)
-                response = requests.get(url)
-
-            response.raise_for_status()
-            data = response.json()
-
-            num_repos = data["total_count"]
-            print(f"Found {num_repos} repositories containing {keyword}")
-            print(f"Collecting {max_repos} repositories")
-
-            num_pages = max_repos // 30
-
-            for page in range(1, num_pages + 1):
-
-                url = f"https://api.github.com/search/repositories?q={keyword}&page={page}"
-                response = requests.get(url)
-
-                # try to avoid getting rate limited
-                if response.status_code == 403:
-                    print("Rate limited. Waiting 5 minutes...")
-                    time.sleep(300)
-                    response = requests.get(url)
-
-                if response.status_code == 422:
-                    break
-
-                response.raise_for_status()
-
-                data = response.json()
-
-                if len(data) == 0:
-                    break
-
-                for repo in data["items"]:
-
-                    html_url = repo["html_url"]
-                    if self.repo_blacklist is None:
-                        repos.append(html_url)
-                    else:
-                        if html_url not in self.repo_blacklist:
-                            repos.append(html_url)
-
-        random.shuffle(repos)
-        if len(repos) > max_repos:
-            return repos[0:max_repos]
-        else:
-            return repos
-
-    def clone_repo(self, repo_url: str, base_path: str):
-        # Perform a shallow clone of a GitHub repository.
+    @staticmethod
+    def count_lines(filename: str):
         try:
-            repo_name = os.path.basename(repo_url)
-            destination_path = os.path.join(base_path, repo_name)
-            git.Repo.clone_from(repo_url, destination_path, depth=1)
-            print(f"Repository {repo_url} cloned successfully to {destination_path}")
-        except git.exc.GitCommandError as e:
-            print(f"Error: {e}")
-    
-    def clone_repositories(self, repo_list: List[str]):
-        for repo in repo_list:
-            self.clone_repo(repo, self.destination_path)
-    
-    def run_trufflehog_scan(self) -> Any:
-        pass
+            with open(filename, 'r') as file:
+                line_count = file.read().count('\n')
+            return line_count + 1
+        except FileNotFoundError:
+            print(f"Error: File '{filename}' not found.")
+            return None
+
+    @staticmethod
+    def save_found_credentials(harvest_folder: str,
+                               found_credentials: List[Dict]):
+        for credential in found_credentials:
+            snippet_file = os.path.join(
+                harvest_folder,
+                f"{credential['secret_sha1']}_{credential['file_name']}"
+                )
+            metadata_file = os.path.join(
+                harvest_folder,
+                f"{credential['secret_sha1']}_{credential['file_name']}.meta"
+                )
+            FileManager.save_snippet(credential["full_path"],
+                                     snippet_file,
+                                     credential["snippet_start_line"],
+                                     credential["snippet_end_line"])
+            FileManager.save_credential_metadata(credential, metadata_file)
+
+    @staticmethod
+    def save_snippet(input_filename: str,
+                     output_filename: str,
+                     start_line: int,
+                     end_line: int):
+        try:
+            with open(input_filename, 'r') as input_file:
+                lines = input_file.readlines()
+
+                start_line -= 1
+                end_line -= 1
+
+                extracted_content = lines[start_line:end_line+1]
+
+            with open(output_filename, 'w') as output_file:
+                output_file.writelines(extracted_content)
+
+        except FileNotFoundError:
+            print(f"Error: Input file '{input_filename}' not found.")
+
+    @staticmethod
+    def save_credential_metadata(credential: dict, output_file: str):
+        with open(output_file, 'w') as file_object:
+            json.dump(credential, file_object, indent=4)
+
+    @staticmethod
+    def delete_folder(folder_path: str):
+        try:
+            for file_name in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, file_name)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+        except Exception as e:
+            print(f"Error: Failed to delete files in the folder. {e}")
