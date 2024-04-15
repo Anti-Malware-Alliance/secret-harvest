@@ -1,3 +1,6 @@
+![Secret Harvester](docs/images/secret-harvester.png)
+
+
 # Secret-Harvest
 
 Python Project to Automate Collection of Snippets with Leaked Secrets in Code, and Snippets Clean of Secrets to Build a Dataset for ML Trainning.
