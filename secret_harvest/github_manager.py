@@ -51,7 +51,7 @@ class GitHubManager:
             for page in random_pages:
 
                 url = (f"https://api.github.com/search/repositories"
-                       f"?q={keyword}&page={page}")
+                       f"?q={keyword}")
                 response = requests.get(url)
 
                 # try to avoid getting rate limited

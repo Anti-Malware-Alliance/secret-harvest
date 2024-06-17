@@ -1,7 +1,7 @@
 import os
-from github_manager import GitHubManager
-from file_manager import FileManager
-from utility import Utility
+from secret_harvest.github_manager import GitHubManager
+from secret_harvest.file_manager import FileManager
+from secret_harvest.utility import Utility
 
 destination_folder = "/tmp"
 harvest_folder = None
