@@ -41,17 +41,21 @@ class GitHubManager:
 
             num_repos = data["total_count"]
             print(f"Found {num_repos} repositories containing: {keyword}")
-            print(f"Cloning {max_repos} repositories")
 
-            num_pages = math.ceil(num_repos / 30)
+
+            limited_repos = min(num_repos, 1000)
+            num_pages = math.ceil(limited_repos / 30)
             required_pages = math.ceil(max_repos / 30)
             list_pages = list(range(num_pages))
             random_pages = random.sample(list_pages, required_pages)
+            print(f"Random page number {random_pages}")
+            print(f"Cloning {max_repos} repositories")
 
             for page in random_pages:
 
                 url = (f"https://api.github.com/search/repositories"
-                       f"?q={keyword}")
+                       f"?q={keyword}&page={page}")
+                print(f"Retrieving URL {url}")
                 response = requests.get(url)
 
                 # try to avoid getting rate limited
