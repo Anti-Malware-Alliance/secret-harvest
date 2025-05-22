@@ -7,7 +7,7 @@ import shutil
 import random
 from typing import List, Any
 from pygments.lexers import get_lexer_for_filename
-from file_manager import FileManager
+from secret_harvest.file_manager import FileManager
 from tabulate import tabulate
 
 
