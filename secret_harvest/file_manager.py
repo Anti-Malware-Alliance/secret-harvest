@@ -23,20 +23,20 @@ class FileManager:
 
             print("Inside of Save Found Credentials")
             snippet_file = os.path.join(
-                harvest_folder, "snipet", 
+                harvest_folder, "snipet",
                 f"snip_{credential['secret_sha1']}_{credential['file_name']}"
                 )
-            
+
             carried_over_file = os.path.join(
-                harvest_folder, "files", 
+                harvest_folder, "files",
                 f"snip_{credential['secret_sha1']}_{credential['file_name']}"
             )
-            
+
             metadata_file = os.path.join(
-                harvest_folder, "meta", 
+                harvest_folder, "meta",
                 f"{credential['secret_sha1']}_{credential['file_name']}.meta"
                 )
-            
+
             shutil.copy(credential["full_path"], carried_over_file)
 
             FileManager.save_snippet(credential["full_path"],
