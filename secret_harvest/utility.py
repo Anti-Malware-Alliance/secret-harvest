@@ -38,12 +38,18 @@ class Utility:
             if os.path.exists(folder):
                 for item in os.listdir(folder):
                     item_path = os.path.join(folder, item)
+
                     try:
-                        if os.path.isfile(item_path) or os.path.islink(item_path):
+                        if (os.path.isfile(item_path) or
+                                os.path.islink(item_path)):
+
                             os.unlink(item_path)
+
                         elif os.path.isdir(item_path):
+
                             print(f"Deleting Folder {item_path}")
                             shutil.rmtree(item_path)
+
                     except Exception as e:
                         print(f"Failed to delete {item_path}: {e}")
 
@@ -237,7 +243,8 @@ class Utility:
             file_path = os.path.join(folder_path, filename)
 
             if os.path.isfile(file_path):
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                with open(file_path, 'r', encoding='utf-8',
+                          errors='ignore') as f:
                     content = f.read()
 
                     print(f"--- {filename} ---")
@@ -247,7 +254,8 @@ class Utility:
                     print("\n")
                     print("\n")
 
-                    response = input("Is this verified? (y/n): ").strip().lower()
+                    prompt = "Is this verified? (y/n): "
+                    response = input(prompt).strip().lower()
                     if response == "y":
                         hash = filename.split("_")[1]
                         confirmed_hashes.append(hash)

@@ -42,7 +42,6 @@ class GitHubManager:
             num_repos = data["total_count"]
             print(f"Found {num_repos} repositories containing: {keyword}")
 
-
             limited_repos = min(num_repos, 1000)
             num_pages = math.ceil(limited_repos / 30)
             required_pages = math.ceil(max_repos / 30)

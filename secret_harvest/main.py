@@ -1,24 +1,22 @@
 import os
-from github_manager import GitHubManager
-from file_manager import FileManager
-from utility import Utility
-from pprint import pprint
-
-destination_folder = "/tmp"
-harvest_folder = None
-
-
+import argparse
+from secret_harvest.github_manager import GitHubManager
+from secret_harvest.file_manager import FileManager
+from secret_harvest.utility import Utility
 
 
 def main(args):
 
     global destination_folder
     global harvest_folder
-
+    destination_folder = "/tmp"
+    harvest_folder = None
     max_repos = 30
-    destination_folder = "/tmp/"
-    results_folder = os.path.join(destination_folder, "secret_harvest/to_verify")
-    clone_folder = os.path.join(destination_folder, "inspect_packages")
+
+    results_folder = os.path.join(destination_folder,
+                                  "secret_harvest/to_verify")
+    clone_folder = os.path.join(destination_folder,
+                                "inspect_packages")
     repo_blacklist = [
         ""
     ]
@@ -50,16 +48,35 @@ def main(args):
     FileManager.save_found_credentials(results_folder, found_credentials)
     FileManager.delete_folder(clone_folder)
 
-    files = Utility.extract_all_files_with_findings("output.json")
+    Utility.extract_all_files_with_findings("output.json")
+
+
+def main_with_args():
+    args = parse_args()
+    main(args)
+
+
+def parse_args():
+    description = "Automate Collection of Snippets with Leaked " \
+        "Secrets in Code for Security Research."
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--search", nargs="+",
+                        help="Optional list of keywords")
+    parser.add_argument("--clean", action="store_true",
+                        help="Trigger cleanup and exit")
+    parser.add_argument("--verify", action="store_true",
+                        help="Trigger cleanup and exit")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0",
+                        help="Show the version and exit.")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Provide detailed output.")
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--search", nargs="+", help="Optional list of keywords")
-    parser.add_argument("--clean", action="store_true", help="Trigger cleanup and exit")
-    parser.add_argument("--verify", action="store_true", help="Trigger cleanup and exit")
-    args = parser.parse_args()
+
+    args = parse_args()
 
     Utility.setup_directories()
 
@@ -69,4 +86,3 @@ if __name__ == "__main__":
         Utility.review_pending_entries("/tmp/secret_harvest/to_verify/snipet")
     elif args.search:
         main(args)
-
