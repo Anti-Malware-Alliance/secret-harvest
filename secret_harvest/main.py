@@ -61,7 +61,7 @@ def parse_args():
         "Secrets in Code for Security Research."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--search", nargs="+",
-                        help="Optional list of keywords")
+                        help="Perform a query on the Backend API")
     parser.add_argument("--clean", action="store_true",
                         help="Trigger cleanup and exit")
     parser.add_argument("--verify", action="store_true",
